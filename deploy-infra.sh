@@ -6,6 +6,22 @@ STACK_NAME=awsbootstrap
 
 EC2_INSTANCE_TYPE=t2.micro
 
+AWS_ACCOUNT_ID=`aws sts get-caller-identity --profile AMHERO-DEV --query "Account" --output text`
+CODE_PIPELINE_BUCKET="$STACK_NAME-$REGION-codepipeline-$AWS_ACCOUNT_ID"
+
+
+# Deploys static resources
+echo -e "\n\n=========== Deploying setup.yml ==========="
+aws cloudformation deploy \
+  --region $REGION \
+  --profile $CLI_PROFILE \
+  --stack-name $STACK_NAME-setup \
+  --template-file setup.yml \
+  --no-fail-on-empty-changeset \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --parameter-overrides \
+    CodePipelineBucket=$CODE_PIPELINE_BUCKET
+
 echo -e "\n\n======= Deploying main.yml ======"
 aws cloudformation deploy \
   --region $REGION \
